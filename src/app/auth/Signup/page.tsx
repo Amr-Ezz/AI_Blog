@@ -43,10 +43,10 @@ const Signup = () => {
           <div className="text-center font-extrabold text-3xl text-blue-500">
             Sign Up
           </div>
-          <form action="" className="mt-6" onSubmit={handleLogin}>
+          <form action="" className="mt-6 text-black" onSubmit={handleLogin}>
           <input
               required
-              className="w-full bg-white border-none py-3 px-5 rounded-xl mt-4 shadow-sm focus:outline-none focus:border-blue-300 placeholder-gray-400"
+              className="w-full  bg-white border-none py-3 px-5 rounded-xl mt-4 shadow-sm focus:outline-none focus:border-blue-300 placeholder-gray-400"
               type="name"
               name="username"
               id="username"
