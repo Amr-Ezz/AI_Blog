@@ -1,5 +1,5 @@
 'use client'
-import { signin, signInWithGoogle } from '../../lib/auth';
+import { signin, signInWithGoogle, signup } from '../../lib/auth';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { AiFillGoogleCircle, AiFillApple, AiFillTwitterSquare } from 'react-icons/ai';
@@ -10,10 +10,10 @@ const Signup = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [userName, setUserName] = useState("");
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-         await signin(email, password);
+         await signup(email, password, userName);
          alert('Signup Successfull')
         } catch (error) {
             console.log('error in signIn', error)
@@ -43,7 +43,7 @@ const Signup = () => {
           <div className="text-center font-extrabold text-3xl text-blue-500">
             Sign Up
           </div>
-          <form action="" className="mt-6 text-black" onSubmit={handleLogin}>
+          <form action="" className="mt-6 text-black" onSubmit={handleSignUp}>
           <input
               required
               className="w-full  bg-white border-none py-3 px-5 rounded-xl mt-4 shadow-sm focus:outline-none focus:border-blue-300 placeholder-gray-400"

@@ -25,6 +25,8 @@ export const signup = async (
       email,
       password
     );
+             localStorage.setItem('user profile', JSON.stringify({name: userName}))
+
 
     return userCredential.user;
   } catch (error) {
@@ -35,7 +37,11 @@ export const signup = async (
 
 //Sign In
 export const signin = async (email: string, password: string) => {
+  
   try {
+     if (auth.currentUser && auth.currentUser.email !== email) {
+      await signOut(auth);
+    }
     const userCredential = await signInWithEmailAndPassword(
       auth,
       email,
@@ -48,7 +54,10 @@ export const signin = async (email: string, password: string) => {
   }
 };
 /// SIgn In With GOOGLE
-export const signInWithGoogle = () => {
+export const signInWithGoogle = async () => {
+  if (auth.currentUser) {
+    await signOut(auth)
+  }
   const provider = new GoogleAuthProvider();
   return signInWithPopup(auth, provider);
 };
@@ -56,6 +65,7 @@ export const signInWithGoogle = () => {
 export const signout = async (): Promise<void> => {
   try {
     await signOut(auth);
+
   } catch (error) {
     console.error("Error signing out:", error);
   }
