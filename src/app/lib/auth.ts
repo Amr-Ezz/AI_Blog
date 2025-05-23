@@ -59,7 +59,9 @@ export const signInWithGoogle = async () => {
     await signOut(auth)
   }
   const provider = new GoogleAuthProvider();
-  return signInWithPopup(auth, provider);
+  const result = await signInWithPopup(auth, provider);
+  return result.user;
+
 };
 //Sign Out
 export const signout = async (): Promise<void> => {
