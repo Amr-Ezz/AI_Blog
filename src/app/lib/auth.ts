@@ -43,7 +43,7 @@ export const signin = async (email: string, password: string) => {
       await signOut(auth);
     }
     const userCredential = await signInWithEmailAndPassword(
-      auth,
+      auth,  
       email,
       password
     );
