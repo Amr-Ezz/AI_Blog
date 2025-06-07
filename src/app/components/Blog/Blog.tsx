@@ -12,6 +12,44 @@ interface BlogPost {
 
 const Blog = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
+  const [prompt, setPrompt] = useState("");
+  const [generatedText, setGeneratedText] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const handleGenerationText = async () => {
+    if (!prompt.trim()) {
+      setError("please enter a prompt");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    setGeneratedText(null);
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.log(errorData.error || `HTTP error! status: ${res.status}`);
+      }
+      const data = await res.json();
+      setGeneratedText(data.content);
+    } catch (err: any) {
+      console.log(err, "Error fetching Ai response");
+      setError(err.message || "failed to generate content");
+      setGeneratedText(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const useGeneratedText = () => {
+    if (generatedText) {
+      setPostContent(generatedText);
+    }
+  };
   const toggleFormButton = () => {
     setShowForm((prev) => !prev);
     if (showForm) {
@@ -41,6 +79,9 @@ const Blog = () => {
     setBlogPost((prev) => [...prev, newBlog]);
     setPostTitle("");
     setPostContent("");
+    setPrompt("");
+    setGeneratedText(null);
+    setError(null);
     setShowForm(false);
   };
   return (
@@ -49,7 +90,7 @@ const Blog = () => {
         <Button showForm={showForm} onClick={toggleFormButton} />
       </div>
       {showForm ? (
-        <form id="blog-post-form">
+        <form id="blog-post-form" onSubmit={handleSubmit}>
           <div className="mb-6">
             <label
               htmlFor="post-title"
@@ -105,26 +146,47 @@ const Blog = () => {
               <input
                 type="text"
                 id="ai-prompt"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
                 placeholder="e.g., benefits of remote work"
                 className="w-[calc(70%-10px)] mr-4 p-3 rounded-md border border-[#3a3c53] bg-[#1e1e2f] text-gray-200 text-base"
               />
               <button
                 type="button"
                 id="ai-submit-prompt"
+                onClick={handleGenerationText}
+                disabled={loading}
                 className="bg-[#00c6ff] text-[#1e1e2f] px-6 py-3 rounded-md cursor-pointer text-base font-bold transition duration-300 ease-in-out hover:bg-blue-400 hover:scale-105 inline-block no-underline"
               >
-                Generate
+                {loading ? 'generating...': 'generate'}
               </button>
             </div>
+              {error && (
+              <div className="mt-4 p-3 bg-red-900 border border-red-700 text-red-100 rounded-md">
+                <p><strong className="font-semibold">Error:</strong> {error}</p>
+              </div>
+            )}
+            {generatedText && (
+              <div className="mt-4 p-4 bg-[#27293d] border border-[#3a3c53] rounded shadow">
+                <h4 className="font-semibold mb-2 text-white">Generated Content Preview:</h4>
+                <p className="text-gray-300 whitespace-pre-wrap">{generatedText}</p> {/* Use pre-wrap to preserve formatting */} 
+                <button
+                  type="button"
+                  onClick={useGeneratedText}
+                  className="mt-3 bg-green-500 text-white px-4 py-2 rounded-md cursor-pointer text-sm font-bold transition duration-300 ease-in-out hover:bg-green-600 hover:scale-105"
+                >
+                  Use This Content
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end gap-4 mt-4">
-            <button
+             <button
               type="submit"
-              onClick={handleSubmit}
               className="bg-[#00c6ff] text-[#1e1e2f] px-6 py-3 rounded-md cursor-pointer text-base font-bold transition duration-300 ease-in-out hover:bg-blue-400 hover:scale-105 inline-block no-underline"
             >
-              'Save Changes' : 'Publish Post'
+              Publish Post
             </button>
           </div>
         </form>
