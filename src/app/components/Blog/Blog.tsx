@@ -61,6 +61,10 @@ const Blog = () => {
   const [postContent, setPostContent] = useState("");
 
   const [blogPost, setBlogPost] = useState<BlogPost[]>([]);
+  const handleDelete = (id: string) => {
+    const updatedBlogPost = blogPost.filter(post => post.id !== id);
+    setBlogPost(updatedBlogPost);
+  }
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!postTitle.trim() || !postContent.trim()) {
@@ -158,7 +162,7 @@ const Blog = () => {
                 disabled={loading}
                 className="bg-[#00c6ff] text-[#1e1e2f] px-6 py-3 rounded-md cursor-pointer text-base font-bold transition duration-300 ease-in-out hover:bg-blue-400 hover:scale-105 inline-block no-underline"
               >
-                {loading ? 'generating...': 'generate'}
+                {loading ? 'Generating...': 'Generate'}
               </button>
             </div>
               {error && (
@@ -199,6 +203,7 @@ const Blog = () => {
                 title={post.title}
                 content={post.content}
                 date={post.date}
+                onDelete={() => handleDelete(post.id)}
               />
             ))
           ) : (
