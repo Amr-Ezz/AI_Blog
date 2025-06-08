@@ -12,10 +12,15 @@ interface BlogPost {
 
 const Blog = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
+  const [showGeneration, setShowGeneration] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [generatedText, setGeneratedText] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+
+  const toggleGeneration = () => {
+    setShowGeneration(!showGeneration);
+  };
 
   const handleGenerationText = async () => {
     if (!prompt.trim()) {
@@ -62,9 +67,9 @@ const Blog = () => {
 
   const [blogPost, setBlogPost] = useState<BlogPost[]>([]);
   const handleDelete = (id: string) => {
-    const updatedBlogPost = blogPost.filter(post => post.id !== id);
+    const updatedBlogPost = blogPost.filter((post) => post.id !== id);
     setBlogPost(updatedBlogPost);
-  }
+  };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!postTitle.trim() || !postContent.trim()) {
@@ -131,49 +136,61 @@ const Blog = () => {
           <div className="mb-6">
             <button
               type="button"
+              onClick={toggleGeneration}
               id="ai-generate-button"
               className="bg-gray-600 text-white px-4 py-2 rounded-md cursor-pointer text-base font-bold transition duration-300 ease-in-out hover:bg-gray-700 hover:scale-105 inline-block no-underline"
             >
               Generate Content with AI ✨
             </button>
+            {showGeneration ? (
+              <div
+                id="ai-prompt-area"
+                className="mt-4 p-4 bg-[#1e1e2f] rounded-md border border-[#3a3c53]"
+              >
+                <label
+                  htmlFor="ai-prompt"
+                  className="block mb-2 font-bold text-[#00c6ff]"
+                >
+                  Enter a topic or prompt for AI:
+                </label>
+                <input
+                  type="text"
+                  id="ai-prompt"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="e.g., benefits of remote work"
+                  className="w-[calc(70%-10px)] mr-4 p-3 rounded-md border border-[#3a3c53] bg-[#1e1e2f] text-gray-200 text-base"
+                />
+                <button
+                  type="button"
+                  id="ai-submit-prompt"
+                  onClick={handleGenerationText}
+                  disabled={loading}
+                  className="bg-[#00c6ff] text-[#1e1e2f] px-6 py-3 rounded-md cursor-pointer text-base font-bold transition duration-300 ease-in-out hover:bg-blue-400 hover:scale-105 inline-block no-underline"
+                >
+                  {loading ? "Generating..." : "Generate"}
+                </button>
+              </div>
+            ) : (
+              ""
+            )}
 
-            <div
-              id="ai-prompt-area"
-              className="mt-4 p-4 bg-[#1e1e2f] rounded-md border border-[#3a3c53]"
-            >
-              <label
-                htmlFor="ai-prompt"
-                className="block mb-2 font-bold text-[#00c6ff]"
-              >
-                Enter a topic or prompt for AI:
-              </label>
-              <input
-                type="text"
-                id="ai-prompt"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="e.g., benefits of remote work"
-                className="w-[calc(70%-10px)] mr-4 p-3 rounded-md border border-[#3a3c53] bg-[#1e1e2f] text-gray-200 text-base"
-              />
-              <button
-                type="button"
-                id="ai-submit-prompt"
-                onClick={handleGenerationText}
-                disabled={loading}
-                className="bg-[#00c6ff] text-[#1e1e2f] px-6 py-3 rounded-md cursor-pointer text-base font-bold transition duration-300 ease-in-out hover:bg-blue-400 hover:scale-105 inline-block no-underline"
-              >
-                {loading ? 'Generating...': 'Generate'}
-              </button>
-            </div>
-              {error && (
+            {error && (
               <div className="mt-4 p-3 bg-red-900 border border-red-700 text-red-100 rounded-md">
-                <p><strong className="font-semibold">Error:</strong> {error}</p>
+                <p>
+                  <strong className="font-semibold">Error:</strong> {error}
+                </p>
               </div>
             )}
             {generatedText && (
               <div className="mt-4 p-4 bg-[#27293d] border border-[#3a3c53] rounded shadow">
-                <h4 className="font-semibold mb-2 text-white">Generated Content Preview:</h4>
-                <p className="text-gray-300 whitespace-pre-wrap">{generatedText}</p> {/* Use pre-wrap to preserve formatting */} 
+                <h4 className="font-semibold mb-2 text-white">
+                  Generated Content Preview:
+                </h4>
+                <p className="text-gray-300 whitespace-pre-wrap">
+                  {generatedText}
+                </p>{" "}
+                {/* Use pre-wrap to preserve formatting */}
                 <button
                   type="button"
                   onClick={useGeneratedText}
@@ -186,7 +203,7 @@ const Blog = () => {
           </div>
 
           <div className="flex justify-end gap-4 mt-4">
-             <button
+            <button
               type="submit"
               className="bg-[#00c6ff] text-[#1e1e2f] px-6 py-3 rounded-md cursor-pointer text-base font-bold transition duration-300 ease-in-out hover:bg-blue-400 hover:scale-105 inline-block no-underline"
             >
