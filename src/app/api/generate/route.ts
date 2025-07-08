@@ -4,20 +4,22 @@ import { AzureKeyCredential } from "@azure/core-auth";
 
 const token = process.env.OPENAI_API_KEY;
 const endpoint = "https://models.github.ai/inference";
-const model = "openai/gpt-4o";
+const model = "openai/gpt-4.1";
+console.log("API Key status:", token ? "Found (length: " + token.length + " )" : "Not found");
+
 
 if (!token) {
-  console.error("Github_Token env not set");
+  console.error("OPENAI_API_KEY environment variable is not set");
 }
 const client = ModelClient(
   endpoint,
-  new AzureKeyCredential(token || "invalid_token")
+  new AzureKeyCredential( token || "invalid_token")
 );
 
 export async function POST(req: Request) {
   if (!token) {
     return NextResponse.json(
-      { error: "Server configuration error: GITHUB_TOKEN is missing." },
+      { error: "Server configuration error: OPENAI_API_KEY is missing." },
       { status: 500 }
     );
   }
@@ -30,6 +32,7 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+    console.log("Sending request to AI model with prompt:", prompt);
 
     // const completion = await openai.chat.completions.create({
     //   model: "gpt-3.5-turbo",
@@ -57,9 +60,8 @@ export async function POST(req: Request) {
       contentType: "application/json",
     });
     if (isUnexpected(response)) {
-      // Log the detailed error for server-side debugging
+// server side error debugging
       console.error("Azure AI Inference Error:", response.body?.error);
-      // Return a generic error to the client
       return NextResponse.json(
         {
           error: `AI Model Inference Error: ${response.status} ${

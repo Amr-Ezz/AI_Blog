@@ -1,14 +1,22 @@
 "use client";
 import Button from "@/app/shared/Button/Button";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import BlogCard from "../BlogCard/BlogCard";
+import { auth } from "@/app/lib/firebase";
+import {
+  saveBlogPost,
+  getUserBlogPosts,
+  deleteBlogPost,
+  BlogPost,
+} from "@/app/lib/blogService";
+import { onAuthStateChanged } from "firebase/auth";
 
-interface BlogPost {
-  id: string;
-  title: string;
-  content: string;
-  date: string;
-}
+// interface BlogPost {
+//   id: string;
+//   title: string;
+//   content: string;
+//   date: string;
+// }
 
 const Blog = () => {
   const [showForm, setShowForm] = useState<boolean>(false);
@@ -36,11 +44,12 @@ const Blog = () => {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ prompt }),
       });
+      const data = await res.json();
+
       if (!res.ok) {
-        const errorData = await res.json();
+        const errorData = await data.error;
         console.log(errorData.error || `HTTP error! status: ${res.status}`);
       }
-      const data = await res.json();
       setGeneratedText(data.content);
     } catch (err: any) {
       console.log(err, "Error fetching Ai response");
@@ -66,17 +75,51 @@ const Blog = () => {
   const [postContent, setPostContent] = useState("");
 
   const [blogPost, setBlogPost] = useState<BlogPost[]>([]);
-  const handleDelete = (id: string) => {
-    const updatedBlogPost = blogPost.filter((post) => post.id !== id);
-    setBlogPost(updatedBlogPost);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      if (user) {
+        loadUserBlogs(user.uid);
+      } else {
+        setBlogPost([]);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+  //////////////////////////
+  const loadUserBlogs = async (userId: string) => {
+    try {
+      const userBlogs = await getUserBlogPosts(userId);
+      setBlogPost(userBlogs as []);
+    } catch (error: any) {
+      console.log("Error loading blogs:", error);
+    }
   };
-  const handleSubmit = (e: React.FormEvent) => {
+  ////////////////////////////////////////
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteBlogPost(id);
+      const updatedBlogPost = blogPost.filter((post) => post.id !== id);
+      setBlogPost(updatedBlogPost);
+    } catch (error: any) {
+      console.error("Error deleting blog:", error);
+      alert("Failed to delete blog post. Please try again.");
+    }
+  };
+  ///////////////////////////////////////////////////////
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!postTitle.trim() || !postContent.trim()) {
       alert("fill out both title and content");
+      return;
+    }
+    if (!currentUser) {
+      alert("You must be logged in to create a blog post");
+      return;
     }
     const newBlog: BlogPost = {
-      id: Date.now().toString(),
+      id: "",
       title: postTitle,
       content: postContent,
       date: new Date().toLocaleDateString("en-us", {
@@ -85,13 +128,24 @@ const Blog = () => {
         day: "numeric",
       }),
     };
-    setBlogPost((prev) => [...prev, newBlog]);
-    setPostTitle("");
-    setPostContent("");
-    setPrompt("");
-    setGeneratedText(null);
-    setError(null);
-    setShowForm(false);
+    try {
+      const blogId = await saveBlogPost(currentUser.uid, newBlog);
+      const blogWithId: BlogPost = {
+        ...newBlog,
+        id: blogId,
+        userId: currentUser.uid,
+      };
+      setBlogPost((prev) => [...prev, blogWithId]);
+      setPostTitle("");
+      setPostContent("");
+      setPrompt("");
+      setGeneratedText(null);
+      setError(null);
+      setShowForm(false);
+    } catch (error: any) {
+      console.error("Error saving blog:", error);
+      alert("Failed to save blog post. Please try again.");
+    }
   };
   return (
     <div className="flex-col bg-[#27293d] p-8 rounded-lg shadow-[0_4px_15px_rgba(0,0,0,0.2)] text-[#00c6ff]">
@@ -220,7 +274,11 @@ const Blog = () => {
                 title={post.title}
                 content={post.content}
                 date={post.date}
-                onDelete={() => handleDelete(post.id)}
+                onDelete={() =>
+                  post.id
+                    ? handleDelete(post.id)
+                    : console.error("No ID to delete")
+                }
               />
             ))
           ) : (
