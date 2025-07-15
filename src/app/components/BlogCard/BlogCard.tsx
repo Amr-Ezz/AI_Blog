@@ -6,7 +6,12 @@ interface BlogPostCard {
   date: string;
   onDelete: () => void;
 }
-const BlogCard: React.FC<BlogPostCard> = ({ title, content, date, onDelete }) => {
+const BlogCard: React.FC<BlogPostCard> = ({
+  title,
+  content,
+  date,
+  onDelete,
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const toggleExpansion = () => {
     setIsExpanded(!isExpanded);
@@ -33,7 +38,10 @@ const BlogCard: React.FC<BlogPostCard> = ({ title, content, date, onDelete }) =>
         >
           {isExpanded ? "Show Less" : "Read More"}
         </button>
-        <button className="px-4 py-2 text-sm bg-red-600 text-white rounded-md cursor-pointer font-bold transition duration-300 ease-in-out hover:bg-red-700 hover:scale-105 inline-block no-underline" onClick={onDelete}>
+        <button
+          className="px-4 py-2 text-sm bg-red-600 text-white rounded-md cursor-pointer font-bold transition duration-300 ease-in-out hover:bg-red-700 hover:scale-105 inline-block no-underline"
+          onClick={onDelete}
+        >
           Delete
         </button>
       </div>

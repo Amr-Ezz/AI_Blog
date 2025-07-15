@@ -14,7 +14,8 @@ const Signup = () => {
         e.preventDefault();
         try {
          await signup(email, password, userName);
-         alert('Signup Successfull')
+         alert('Signup Successfull');
+         router.push('/');
         } catch (error) {
             console.log('error in signIn', error)
         }

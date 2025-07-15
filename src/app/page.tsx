@@ -1,5 +1,5 @@
 import Blog from "./components/Blog/Blog";
-import Navbar from "./components/Navbar/navbar";
+import Navbar from "./components/Navbar/Navbar";
 import Button from "./shared/Button/Button";
 
 export default function Home() {

@@ -12,6 +12,10 @@ import {
   linkWithCredential,
 } from "firebase/auth";
 
+import { db } from "./firebase";
+import { collection, addDoc, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore';
+
+
 export type AuthUser = User | null;
 //Sign Up
 export const signup = async (
@@ -111,4 +115,5 @@ export const confirmPhoneVerificationCode = async (
   const credential = PhoneAuthProvider.credential(verificationId, code);
   return await linkWithCredential(user, credential);
 };
+
 

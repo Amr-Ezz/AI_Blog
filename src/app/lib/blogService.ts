@@ -36,7 +36,7 @@ export const saveBlogPost = async (
 };
 export const getUserBlogPosts = async (userId: string) => {
   try {
-    const q = query(collection(db, "blogs"), where("userId", "==", userId));
+    const q = query(collection(db, "Blogs"), where("userId", "==", userId));
     const querySnapShot = await getDocs(q);
     const blogs: BlogPost[] = [];
     querySnapShot.forEach((doc) => {

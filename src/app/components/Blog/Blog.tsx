@@ -25,6 +25,12 @@ const Blog = () => {
   const [generatedText, setGeneratedText] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [postTitle, setPostTitle] = useState("");
+  const [postContent, setPostContent] = useState("");
+
+  const [blogPost, setBlogPost] = useState<BlogPost[]>([]);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  /////////////////////////////////////////////////////////////////////////////////////////
 
   const toggleGeneration = () => {
     setShowGeneration(!showGeneration);
@@ -71,18 +77,17 @@ const Blog = () => {
       setPostContent("");
     }
   };
-  const [postTitle, setPostTitle] = useState("");
-  const [postContent, setPostContent] = useState("");
 
-  const [blogPost, setBlogPost] = useState<BlogPost[]>([]);
-  const [currentUser, setCurrentUser] = useState<any>(null);
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
       if (user) {
         loadUserBlogs(user.uid);
+
       } else {
         setBlogPost([]);
+                        console.log("user blog not saved");
+
       }
     });
     return () => unsubscribe();
